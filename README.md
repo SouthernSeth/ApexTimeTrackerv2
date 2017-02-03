@@ -1,4 +1,4 @@
-# ApexTimeTrackerv2
+# ApexTimeTracker v2
 The goal of the Apex Time Tracker is to provide employees an easier way to track and manage their time. This, in hope, should make time records more accurate and on-time. The application is packed with all the features needed to manage time efficiently. 
 
 # Features
