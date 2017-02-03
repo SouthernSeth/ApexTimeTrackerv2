@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -118,35 +119,39 @@ public class ApexTimeTrackerv2 {
 		for (Timecard timecard : temp) {
 			if (timecard.getWeek().equalsIgnoreCase(getWeek())) {
 				week = timecard.getWeek();
-				temp2[increment] = timecard.getDay() + ": " + timecard.getHoursWorked() + " hour(s) worked";
+				DecimalFormat df = new DecimalFormat();
+				df.setMaximumFractionDigits(2);
+				temp2[increment] = timecard.getDay() + ": " + df.format(timecard.getHoursWorked()) + " hour(s) worked";
 				increment++;
 			}
 		}
 		
 		String[] time = new String[7];
 		for (int i = 0;i<temp2.length;i++) {
-			System.out.println(temp2[i]);
 			if (temp2[i] != null) {
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Monday")) {
-					time[0] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Tuesday")) {
-					time[1] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Wednesday")) {
-					time[2] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Thursday")) {
-					time[3] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Friday")) {
-					time[4] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Saturday")) {
-					time[5] = temp2[i];
-				}
-				if (temp2[i].split(":")[0].equalsIgnoreCase("Sunday")) {
-					time[6] = temp2[i];
+				System.out.println(temp2[i]);
+				if (temp2[i] != null) {
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Monday")) {
+						time[0] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Tuesday")) {
+						time[1] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Wednesday")) {
+						time[2] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Thursday")) {
+						time[3] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Friday")) {
+						time[4] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Saturday")) {
+						time[5] = temp2[i];
+					}
+					if (temp2[i].split(":")[0].equalsIgnoreCase("Sunday")) {
+						time[6] = temp2[i];
+					}
 				}
 			}
 		}
@@ -155,7 +160,13 @@ public class ApexTimeTrackerv2 {
 		if (Desktop.isDesktopSupported() && (desktop = Desktop.getDesktop()).isSupported(Desktop.Action.MAIL)) {
 			String email = props.getProperty("email");
 			String subject = "Apex Time Track v2 - " + Strings.username + " - " + week;
-			String body = time[0] + "%0D%0A" + time[1] + "%0D%0A" + time[2] + "%0D%0A" + time[3] + "%0D%0A" + time[4] + "%0D%0A" + time[5] + "%0D%0A" + time[6];
+			StringBuilder temp_body = new StringBuilder();
+			for (int i = 0;i<7;i++) {
+				if (time[i] != null) {
+					temp_body.append(time[i] + "%0D%0A");
+				}
+			}
+			String body = temp_body.toString();
 			URI mailto = new URI("mailto:"+email+"?subject="+subject.replaceAll(" ", "%20")+"&body="+body.replaceAll(" ", "%20"));
 			desktop.mail(mailto);
 		} else {
