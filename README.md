@@ -8,3 +8,6 @@ The goal of the Apex Time Tracker is to provide employees an easier way to track
 * Users can also view all their time stored in a table format through the "View Timesheet" option
 * User have the option to email their time to any email at their will
 * The program uses SQLite to store all times using the SQL database language making storing up time instant and quick
+
+# Wiki
+Have some questions on how to do an action inside of the application? Head on over to the wiki! https://github.com/SouthernSeth/ApexTimeTrackerv2/wiki
