@@ -796,6 +796,8 @@ public class ApexTimeTrackerv2 {
 					return;
 				}
 				
+				clockOut();
+				
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(new Date());
 				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
@@ -810,8 +812,6 @@ public class ApexTimeTrackerv2 {
 						e1.printStackTrace();
 					}
 				}
-				
-				clockOut();
 			}
 		});
 

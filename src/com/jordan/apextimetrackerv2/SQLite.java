@@ -24,13 +24,6 @@ public class SQLite {
 			statement.setQueryTimeout(30);
 
 			statement.execute("create table if not exists timecards (id integer primary key, week string, clockindate string, clockintime string, tolunchdate string, tolunchtime string, returnlunchdate string, returnlunchtime string, clockoutdate string, clockouttime string)");
-			//			statement.executeUpdate("insert into person values(1, 'leo')");
-			//			statement.executeUpdate("insert into person values(2, 'yui')");
-			//			ResultSet rs = statement.executeQuery("select * from person");
-			//			while (rs.next()) {
-			//				System.out.println("name = " + rs.getString("name"));
-			//				System.out.println("id = " + rs.getInt("id"));
-			//			}
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 		}
