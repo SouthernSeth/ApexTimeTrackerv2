@@ -800,7 +800,7 @@ public class ApexTimeTrackerv2 {
 				
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(new Date());
-				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
 				
 				if (friday) {
 					JOptionPane.showMessageDialog(window, "It's Friday! Time to put that time in! I have composed an email so you can send your hours to your email just incase, as well as I have opened a browser and navigated to the contractor login page for Apex Systems Inc!");
