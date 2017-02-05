@@ -800,12 +800,13 @@ public class ApexTimeTrackerv2 {
 				
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(new Date());
-				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
+				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
 				
 				if (friday) {
-					JOptionPane.showMessageDialog(window, "It's Friday! Time to put that time in! I have composed an email so you can send your hours to your email just incase!");
+					JOptionPane.showMessageDialog(window, "It's Friday! Time to put that time in! I have composed an email so you can send your hours to your email just incase, as well as I have opened a browser and navigated to the contractor login page for Apex Systems Inc!");
 					try {
 						emailTimesheet();
+						Desktop.getDesktop().browse(new URI("https://myapex.apexsystemsinc.com/psp/MYAPEX/CONTRACTOR/HRMS/c/APEX.AX_HOME_PAGE.GBL?FolderPath=PORTAL_ROOT_OBJECT.AX_HOME_PAGE&IsFolder=false&IgnoreParamTempl=FolderPath%2cIsFolder"));
 					} catch (URISyntaxException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {
