@@ -17,11 +17,9 @@ public class Timecard {
 	private String clockOutTime;
 	private String toLunchTime;
 	private String returnLunchTime;
-	private String week;
 	
-	public Timecard(int id, String week, String clockInDate, String clockInTime, String toLunchDate, String toLunchTime, String returnLunchDate, String returnLunchTime, String clockOutDate, String clockOutTime) {
+	public Timecard(int id, String clockInDate, String clockInTime, String toLunchDate, String toLunchTime, String returnLunchDate, String returnLunchTime, String clockOutDate, String clockOutTime) {
 		this.id = id;
-		this.week = week;
 		this.clockInTime = clockInTime;
 		this.clockOutTime = clockOutTime;
 		this.toLunchTime = toLunchTime;
@@ -34,7 +32,6 @@ public class Timecard {
 	
 	public Timecard(int id, String week, String clockInDate, String clockInTime) {
 		this.id = id;
-		this.week = week;
 		this.clockInDate = clockInDate;
 		this.clockInTime = clockInTime;
 	}

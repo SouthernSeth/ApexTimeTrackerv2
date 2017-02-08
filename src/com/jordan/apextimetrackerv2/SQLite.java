@@ -42,7 +42,7 @@ public class SQLite {
 			ResultSet rs = connection.createStatement().executeQuery(query);
 			
 			while (rs.next()) {
-				Timecard timeHandler = new Timecard(rs.getInt("id"), rs.getString("week"), rs.getString("clockindate"), rs.getString("clockintime"), rs.getString("tolunchdate"), rs.getString("tolunchtime"), rs.getString("returnlunchdate"), rs.getString("returnlunchtime"), rs.getString("clockoutdate"), rs.getString("clockouttime"));
+				Timecard timeHandler = new Timecard(rs.getInt("id"), rs.getString("clockindate"), rs.getString("clockintime"), rs.getString("tolunchdate"), rs.getString("tolunchtime"), rs.getString("returnlunchdate"), rs.getString("returnlunchtime"), rs.getString("clockoutdate"), rs.getString("clockouttime"));
 				timecards.add(timeHandler);
 			}
 		} catch (SQLException e) {
@@ -112,7 +112,7 @@ public class SQLite {
 			ResultSet rs = connection.createStatement().executeQuery(query);
 			
 			if (rs.next()) {
-				Timecard timeHandler = new Timecard(rs.getInt("id"), rs.getString("week"), rs.getString("clockindate"), rs.getString("clockintime"), rs.getString("tolunchdate"), rs.getString("tolunchtime"), rs.getString("returnlunchdate"), rs.getString("returnlunchtime"), rs.getString("clockoutdate"), rs.getString("clockouttime"));
+				Timecard timeHandler = new Timecard(rs.getInt("id"), rs.getString("clockindate"), rs.getString("clockintime"), rs.getString("tolunchdate"), rs.getString("tolunchtime"), rs.getString("returnlunchdate"), rs.getString("returnlunchtime"), rs.getString("clockoutdate"), rs.getString("clockouttime"));
 				return timeHandler;
 			}
 		} catch (SQLException e) {
@@ -141,7 +141,7 @@ public class SQLite {
 			String query2 = "select * from timecards where clockindate = '" + latestDate + "'";
 			ResultSet rs2 = connection.createStatement().executeQuery(query2);
 			while (rs2.next()) {
-				Timecard timeHandler = new Timecard(rs2.getInt("id"), rs2.getString("week"), rs2.getString("clockindate"), rs2.getString("clockintime"), rs2.getString("tolunchdate"), rs2.getString("tolunchtime"), rs2.getString("returnlunchdate"), rs2.getString("returnlunchtime"), rs2.getString("clockoutdate"), rs2.getString("clockouttime"));
+				Timecard timeHandler = new Timecard(rs2.getInt("id"), rs2.getString("clockindate"), rs2.getString("clockintime"), rs2.getString("tolunchdate"), rs2.getString("tolunchtime"), rs2.getString("returnlunchdate"), rs2.getString("returnlunchtime"), rs2.getString("clockoutdate"), rs2.getString("clockouttime"));
 				return timeHandler;
 			}
 		} catch (SQLException e) {

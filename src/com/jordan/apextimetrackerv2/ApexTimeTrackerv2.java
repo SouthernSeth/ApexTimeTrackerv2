@@ -1,11 +1,18 @@
 package com.jordan.apextimetrackerv2;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -23,11 +30,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,17 +45,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import com.jordan.apextimetrackerv2.listeners.EditTimeMouseListener;
 import com.jordan.apextimetrackerv2.util.Strings;
 import com.jordan.apextimetrackerv2.util.Timecard;
 import com.jordan.apextimetrackerv2.windows.EmailSettingsWindow;
 import com.jordan.apextimetrackerv2.windows.LoadTimecardWindow;
+import com.jordan.apextimetrackerv2.windows.TimerWindow;
 import com.jordan.apextimetrackerv2.windows.TimesheetWindow;
 
 public class ApexTimeTrackerv2 {
 
 	private ApexTimeTrackerv2 main;
+	
+	private TimerWindow timerWindow;
 
 	private JFrame window;
 	private JPanel panel;
@@ -65,7 +79,6 @@ public class ApexTimeTrackerv2 {
 	private JMenuItem about;
 	private JMenuItem createNewTimecard;
 	private JMenuItem loadTimecard;
-	private JMenuItem update;
 	private JMenuItem todo;
 
 	private JButton clockIn;
@@ -77,7 +90,10 @@ public class ApexTimeTrackerv2 {
 	private JTextField clockOutField;
 	private JTextField toLunchField;
 	private JTextField returnLunchField;
-
+	
+	private JLabel clock;
+	private JLabel timerButton;
+	
 	private int loadedID = 0;
 
 	private JFrame bg = null;
@@ -89,9 +105,27 @@ public class ApexTimeTrackerv2 {
 	public ApexTimeTrackerv2(SQLite sqlite) {
 		main = this;
 		Strings.username = System.getProperty("user.name");
+		
+		if (Strings.username.equalsIgnoreCase("jrjackson")) {
+			Strings.username = "Joshua Jackson";
+		}
+		
 		this.sqlite = sqlite;
 		loadTime();
 		loadApp();
+		startClock();
+	}
+	
+	private void startClock() {
+		final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy kk:mm:ss");
+		
+		Timer taskTimer = new Timer();
+		taskTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				clock.setText(sdf.format(new Date()));
+			}
+		}, 0, 1000);
 	}
 
 	private void emailTimesheet() throws URISyntaxException, IOException {
@@ -194,6 +228,7 @@ public class ApexTimeTrackerv2 {
 
 						@Override
 						public void windowClosing(WindowEvent e) {
+							
 						}
 
 						@Override
@@ -515,7 +550,7 @@ public class ApexTimeTrackerv2 {
 				System.out.println("clockouttime = " + clockouttime);
 				System.out.println("-----------------------------------------------");
 
-				Timecard timeHandler = new Timecard(id, week, clockindate, clockintime, tolunchdate, tolunchtime, returnlunchdate, returnlunchtime, clockoutdate, clockouttime);
+				Timecard timeHandler = new Timecard(id, clockindate, clockintime, tolunchdate, tolunchtime, returnlunchdate, returnlunchtime, clockoutdate, clockouttime);
 				timecards.add(timeHandler);
 			}
 		} catch (SQLException e2) {
@@ -528,22 +563,28 @@ public class ApexTimeTrackerv2 {
 	private void loadUI() {
 		window = new JFrame(Strings.applicationName + " - " + Strings.username);
 		panel = new JPanel();
+		
+		timerWindow = new TimerWindow(window);
 
 		clockInField = new JTextField();
 		clockInField.setName("clockin");
 		clockInField.setEditable(false);
+		clockInField.setColumns(20);
 
 		clockOutField = new JTextField();
 		clockOutField.setName("clockout");
 		clockOutField.setEditable(false);
+		clockOutField.setColumns(20);
 
 		toLunchField = new JTextField();
 		toLunchField.setName("tolunch");
 		toLunchField.setEditable(false);
+		toLunchField.setColumns(20);
 
 		returnLunchField = new JTextField();
 		returnLunchField.setName("returnlunch");
 		returnLunchField.setEditable(false);
+		returnLunchField.setColumns(20);
 
 		clockIn = new JButton(Strings.clockInButton);
 		clockOut = new JButton(Strings.clockOutButton);
@@ -571,7 +612,6 @@ public class ApexTimeTrackerv2 {
 		deleteTimesheet = new JMenuItem(Strings.deleteAllTimeButton);
 		emailTimesheet = new JMenuItem(Strings.emailTimesheetButton);
 		createNewTimecard = new JMenuItem("Create New Timecard");
-		update = new JMenuItem("Update");
 		loadTimecard = new JMenuItem("Load Timecard");
 		todo = new JMenuItem("TODO");
 
@@ -857,22 +897,84 @@ public class ApexTimeTrackerv2 {
 		loadUI();
 
 		panel = new JPanel();
-		panel.setLayout(new GridLayout(4, 2, 10, 25));
+		panel.setBackground(Color.WHITE);
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
 
-		Dimension dim = new Dimension(500, 250);
+		Dimension dim = new Dimension(425, 225);
 
 		panel.setPreferredSize(dim);
 		panel.setMaximumSize(dim);
 		panel.setMinimumSize(dim);
+		
+		Component[] components = new Component[] {
+				clockIn,clockInField,toLunch,toLunchField,returnLunch,returnLunchField, clockOut, clockOutField
+		};
+		
+		String[] locations = new String[] {
+				"0,0","1,0","0,1","1,1","0,2","1,2","0,3","1,3"
+		};
+		
+		for (int i = 0;i<components.length;i++) {
+			gbc = new GridBagConstraints();
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = Integer.parseInt(locations[i].split(",")[0]);
+			gbc.gridy = Integer.parseInt(locations[i].split(",")[1]);
+			gbc.gridwidth = 1;
+			gbc.insets = new Insets(0,0,15,5);
+			panel.add(components[i], gbc);
+		}
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		
+		clock = new JLabel();
+		Font f = new Font("Arial", Font.BOLD, 18);
+		clock.setFont(f);
+		clock.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(clock, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		
+		timerButton = new JLabel(Character.toString((char) 9650));
+		timerButton.setName("disabled");
+		timerButton.setFont(f);
+		timerButton.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(timerButton, gbc);
+		
+		timerButton.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (timerButton.getName().equalsIgnoreCase("disabled")) {
+					timerWindow.setVisible(true, timerButton);
+				} else {
+					timerWindow.setVisible(false, timerButton);
+				}
+			}
 
-		panel.add(clockIn);
-		panel.add(clockInField);
-		panel.add(toLunch);
-		panel.add(toLunchField);
-		panel.add(returnLunch);
-		panel.add(returnLunchField);
-		panel.add(clockOut);
-		panel.add(clockOutField);
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+			}
+		});
 
 		window.setJMenuBar(menuBar);
 	}
@@ -889,12 +991,24 @@ public class ApexTimeTrackerv2 {
 			e.printStackTrace();
 		}
 
-		window.setContentPane(panel);
+		window.add(panel);
 		window.pack();
 		window.setLocationRelativeTo(null);
 		window.setFocusable(true);
 		window.setAlwaysOnTop(true);
 		window.setVisible(true);
+		
+		window.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent ev) {
+				int i = JOptionPane.showConfirmDialog(window, "Are you sure you want to close the Apex Time Tracker?", "Apex Time Tracker Exiting", JOptionPane.YES_NO_OPTION);
+				if (i == JOptionPane.YES_OPTION) {
+					window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				} else {
+					window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				}
+			}
+		});
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.jordan.apextimetrackerv2.windows;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -21,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import com.jordan.apextimetrackerv2.util.Strings;
 
@@ -69,18 +72,36 @@ public class EmailSettingsWindow {
 
 		JButton save = new JButton("Save Settings");
 
-		JLabel label_emailField = new JLabel("Email:");
+		JLabel label_emailField = new JLabel("Email");
 
-		final JTextField emailField = new JTextField(emailInput);
+		final JTextField emailField = new JTextField(emailInput, 30);
 
-		GridLayout layout = new GridLayout(4, 1, 5, 5);
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
 
-		panel.setLayout(layout);
-
-		panel.add(label_emailField);
-		panel.add(emailField);
-		panel.add(new JLabel());
-		panel.add(save);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.insets = new Insets(0,0,0,0);
+		label_emailField.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(label_emailField, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		gbc.insets = new Insets(0,0,0,0);
+		panel.add(emailField, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 2;
+		gbc.insets = new Insets(10,0,0,0);
+		panel.add(save, gbc);
 
 		email.setContentPane(panel);
 		email.pack();

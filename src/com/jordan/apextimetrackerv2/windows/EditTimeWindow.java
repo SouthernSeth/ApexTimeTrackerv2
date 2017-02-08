@@ -1,7 +1,8 @@
 package com.jordan.apextimetrackerv2.windows;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -113,16 +114,56 @@ public class EditTimeWindow {
 			}
 		});
 		
-		editTime.getContentPane().setLayout(new GridLayout(4,2,2,2));
+		editTime.getContentPane().setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
 		
-		editTime.getContentPane().add(new JLabel("Date: "));
-		editTime.getContentPane().add(datePicker);
-		editTime.getContentPane().add(new JLabel("Hour: "));
-		editTime.getContentPane().add(spinnerHour);
-		editTime.getContentPane().add(new JLabel("Minute: "));
-		editTime.getContentPane().add(spinnerMinute);
-		editTime.getContentPane().add(new JLabel(""));
-		editTime.getContentPane().add(save);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		editTime.getContentPane().add(new JLabel("Date: "), gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		editTime.getContentPane().add(datePicker, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		editTime.getContentPane().add(new JLabel("Hour: "), gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		editTime.getContentPane().add(spinnerHour, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		editTime.getContentPane().add(new JLabel("Minute: "), gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 1;
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		editTime.getContentPane().add(spinnerMinute, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		editTime.getContentPane().add(save, gbc);
 		
 		editTime.setVisible(true);
 		

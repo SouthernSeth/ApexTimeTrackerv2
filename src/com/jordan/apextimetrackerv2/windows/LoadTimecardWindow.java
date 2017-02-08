@@ -1,7 +1,9 @@
 package com.jordan.apextimetrackerv2.windows;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -39,7 +41,7 @@ public class LoadTimecardWindow {
 		frame.setAlwaysOnTop(true);
 		frame.setResizable(false);
 		
-		frame.getContentPane().setLayout(new GridLayout(2,1,2,30));
+		frame.getContentPane().setLayout(new GridBagLayout());
 		
 		load = new JButton("Load");
 		
@@ -52,7 +54,6 @@ public class LoadTimecardWindow {
 			select.addItem(time.getID() + " - " + time.getClockInDate());
 		}
 		
-		//Load the selected timecard into the program
 		load.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -64,8 +65,19 @@ public class LoadTimecardWindow {
 			}
 		});
 		
-		frame.getContentPane().add(select);
-		frame.getContentPane().add(load);
+		GridBagConstraints gbc = new GridBagConstraints();
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.insets = new Insets(0,0,10,0);
+		frame.getContentPane().add(select, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		frame.getContentPane().add(load, gbc);
 		
 		frame.setVisible(true);
 		
