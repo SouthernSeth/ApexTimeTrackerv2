@@ -15,11 +15,10 @@ public class Start {
 	
 	private static final int PORT = 9999;
 	
-	@SuppressWarnings("unused")
 	private static ServerSocket socket;    
 
 	public static void main(String[] args) {
-		//check();
+		check();
 		
 		File folder = new File("C:\\ApexTimeTracker");
 		if (!folder.exists()) {

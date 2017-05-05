@@ -1,0 +1,25 @@
+* If user clocks in and clocks out on 2 different days, measure by hours worked in that day, else just calculate the hours worked from clock in to clock out time
+
+Break Reminder:
+	- Settings: Add 4 options to set a 1st break, 2nd break, 3rd break, and a lunch 
+	- Settings: Add option to enable or disable this feature
+	- Remind the user 5 minutes before their break, when their break is supposed to start, and 5 minutes prior to their break
+	
+Updater:
+	- Check all the files on the github
+	- If the files are newer than the files in the program
+	- Close the tracker
+	- Download the .java files from Github
+	- Compile the .java files to .class
+	- Compile the .class files into a Jar
+	- Delete the current Jar and replace it with the newly built Jar
+	- Update completed
+	
+	
+	
+CURRENT PEOPLE WITH ACCESS:
+- Jordan Wiggins (Programmer)
+- Joshua Jackson
+- Joshua Guillot
+- Rio Sorden
+- Blake Fanucchi

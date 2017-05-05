@@ -23,7 +23,7 @@ public class SQLite {
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30);
 
-			statement.execute("create table if not exists timecards (id integer primary key, week string, clockindate string, clockintime string, tolunchdate string, tolunchtime string, returnlunchdate string, returnlunchtime string, clockoutdate string, clockouttime string)");
+			statement.execute("create table if not exists timecards (id integer primary key, clockindate string, clockintime string, tolunchdate string, tolunchtime string, returnlunchdate string, returnlunchtime string, clockoutdate string, clockouttime string)");
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 		}
@@ -204,7 +204,7 @@ public class SQLite {
 			e.printStackTrace();
 		}
 
-		String query = "insert into timecards (id, week) values (" + id + ", '" + week + "')";
+		String query = "insert into timecards (id) values (" + id + ")";
 
 		try {
 			statement.execute(query);
@@ -265,7 +265,6 @@ public class SQLite {
 
 			while (rs.next()) {
 				System.out.println("ID: " + rs.getInt("id"));
-				System.out.println("Week: " + rs.getString("week"));
 				System.out.println("Clockin Date: " + rs.getString("clockindate"));
 				System.out.println("Clockin Time: " + rs.getString("clockintime"));
 				System.out.println("Tolunch Date: " + rs.getString("tolunchdate"));

@@ -31,17 +31,17 @@ import org.jdatepicker.impl.UtilDateModel;
 
 import com.jordan.apextimetrackerv2.ApexTimeTrackerv2;
 
-public class EditTimeWindow {
-	
+public class ManuallyAddTimeWindow {
+
 	private JButton save;
 	private JSpinner spinnerHour;
 	private JSpinner spinnerMinute;
 	private UtilDateModel model;
-	
+
 	private JFrame editTime;
-	
-	public EditTimeWindow(final JFrame window, final ApexTimeTrackerv2 att, final JFrame bg, String current, final String type) {
-		editTime = new JFrame("Edit Time");
+
+	public ManuallyAddTimeWindow(final JFrame window, final ApexTimeTrackerv2 att) {
+		editTime = new JFrame("Manually Add Time");
 		URL iconURL = getClass().getResource("/favicon.png");
 		ImageIcon icon = new ImageIcon(iconURL);
 		editTime.setIconImage(icon.getImage());
@@ -51,19 +51,19 @@ public class EditTimeWindow {
 		editTime.setLocationRelativeTo(window);
 		editTime.setAlwaysOnTop(true);
 		editTime.setResizable(false);
-		
+
 		save = new JButton("Save Time");
-		
+
 		Properties props = new Properties();
 		props.put("text.today", "Today");
 		props.put("text.month", "Month");
 		props.put("text.year", "Year");
-		
+
 		model = new UtilDateModel();
-		
+
 		ArrayList<String> h = new ArrayList<String>();
 		ArrayList<String> m = new ArrayList<String>();
-		
+
 		for (int i = 0;i<24;i++) {
 			if (i < 10) {
 				h.add(String.valueOf("0" + i));
@@ -71,7 +71,7 @@ public class EditTimeWindow {
 				h.add(String.valueOf(i));
 			}
 		}
-		
+
 		for (int i = 0;i<60;i++) {
 			if (i < 10) {
 				m.add(String.valueOf("0" + i));
@@ -79,76 +79,37 @@ public class EditTimeWindow {
 				m.add(String.valueOf(i));
 			}
 		}
-		
+
 		SpinnerModel sm = new SpinnerListModel(h);
 		spinnerHour = new JSpinner(sm);
-		
+
 		SpinnerModel sm2 = new SpinnerListModel(m);
 		spinnerMinute = new JSpinner(sm2);
-		
-		if (!current.isEmpty() || !current.equalsIgnoreCase("")) {
-			String[] split = current.split(" ");
-			String date = split[0];
-			String time = split[1];
-			
-			String[] youNeedToCutIt = date.split("/");
-			String day = youNeedToCutIt[1];
-			String month = youNeedToCutIt[0];
-			String year = youNeedToCutIt[2];
-			
-			SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-			try {
-				model.setValue(format.parse(month + "/" + day + "/" + year));
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-			
-			String[] youNeedToCutItMore = time.split(":");
-			String hour = youNeedToCutItMore[0];
-			String minute = youNeedToCutItMore[1];
-			
-			if (Integer.valueOf(hour) < 10) {
-				hour = "0" + hour;
-			}
-			
-			spinnerHour.setValue(hour);
-			spinnerMinute.setValue(minute);
-		}
-		
+
+		spinnerHour.setValue("00");
+		spinnerMinute.setValue("00");
+
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, props);
 		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
-		
+
 		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Date date = model.getValue();
-				int hour = Integer.valueOf((String) spinnerHour.getValue());
-				int minute = Integer.valueOf((String) spinnerMinute.getValue());
-				
-				if (type.equalsIgnoreCase("clockin")) {
-					att.clockIn(date, hour, minute);
-				} else if (type.equalsIgnoreCase("clockout")) {
-					att.clockOut(date, hour, minute);
-				} else if (type.equalsIgnoreCase("tolunch")) {
-					att.toLunch(date, hour, minute);
-				} else if (type.equalsIgnoreCase("returnlunch")) {
-					att.returnLunch(date, hour, minute);
-				}
-				
+				//TODO: add new timecard
 				editTime.dispatchEvent(new WindowEvent(editTime, WindowEvent.WINDOW_CLOSING));
 			}
 		});
-		
+
 		editTime.getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(new JLabel("Date: "), gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
@@ -156,7 +117,7 @@ public class EditTimeWindow {
 		gbc.gridy = 0;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(datePicker, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
@@ -164,7 +125,7 @@ public class EditTimeWindow {
 		gbc.gridy = 1;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(new JLabel("Hour: "), gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
@@ -172,7 +133,7 @@ public class EditTimeWindow {
 		gbc.gridy = 1;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(spinnerHour, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
@@ -180,7 +141,7 @@ public class EditTimeWindow {
 		gbc.gridy = 2;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(new JLabel("Minute: "), gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 1;
@@ -188,7 +149,7 @@ public class EditTimeWindow {
 		gbc.gridy = 2;
 		gbc.insets = new Insets(0,0,3,0);
 		editTime.getContentPane().add(spinnerMinute, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 2;
@@ -196,9 +157,9 @@ public class EditTimeWindow {
 		gbc.gridy = 3;
 		gbc.insets = new Insets(3,5,0,5);
 		editTime.getContentPane().add(save, gbc);
-		
+
 		editTime.setVisible(true);
-		
+
 		editTime.addWindowListener(new WindowListener() {
 
 			@Override
@@ -229,7 +190,7 @@ public class EditTimeWindow {
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 			}
-			
+
 		});
 	}
 

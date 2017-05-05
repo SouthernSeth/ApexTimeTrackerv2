@@ -15,21 +15,16 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,17 +43,20 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import com.jordan.apextimetrackerv2.listeners.EditTimeMouseListener;
+import com.jordan.apextimetrackerv2.util.Settings;
 import com.jordan.apextimetrackerv2.util.Strings;
 import com.jordan.apextimetrackerv2.util.Timecard;
-import com.jordan.apextimetrackerv2.windows.EmailSettingsWindow;
+import com.jordan.apextimetrackerv2.windows.EmailTimesheet;
 import com.jordan.apextimetrackerv2.windows.LoadTimecardWindow;
+import com.jordan.apextimetrackerv2.windows.ManuallyAddTimeWindow;
+import com.jordan.apextimetrackerv2.windows.SettingsWindow;
 import com.jordan.apextimetrackerv2.windows.TimerWindow;
 import com.jordan.apextimetrackerv2.windows.TimesheetWindow;
 
 public class ApexTimeTrackerv2 {
 
 	private ApexTimeTrackerv2 main;
-	
+
 	private TimerWindow timerWindow;
 
 	private JFrame window;
@@ -71,7 +69,7 @@ public class ApexTimeTrackerv2 {
 	private JMenu help;
 	private JMenuItem exit;
 	private JCheckBoxMenuItem editTime;
-	private JMenuItem emailSettings;
+	private JMenuItem appSettings;
 	private JMenuItem viewTimesheet;
 	private JMenuItem deleteTimesheet;
 	private JMenuItem deleteTime;
@@ -79,7 +77,7 @@ public class ApexTimeTrackerv2 {
 	private JMenuItem about;
 	private JMenuItem createNewTimecard;
 	private JMenuItem loadTimecard;
-	private JMenuItem todo;
+	private JMenuItem manuallyEnterTime;
 
 	private JButton clockIn;
 	private JButton clockOut;
@@ -90,10 +88,10 @@ public class ApexTimeTrackerv2 {
 	private JTextField clockOutField;
 	private JTextField toLunchField;
 	private JTextField returnLunchField;
-	
+
 	private JLabel clock;
 	private JLabel timerButton;
-	
+
 	private int loadedID = 0;
 
 	private JFrame bg = null;
@@ -105,20 +103,21 @@ public class ApexTimeTrackerv2 {
 	public ApexTimeTrackerv2(SQLite sqlite) {
 		main = this;
 		Strings.username = System.getProperty("user.name");
-		
+
 		if (Strings.username.equalsIgnoreCase("jrjackson")) {
 			Strings.username = "Joshua Jackson";
 		}
-		
+
+		new Settings();
 		this.sqlite = sqlite;
 		loadTime();
 		loadApp();
 		startClock();
 	}
-	
+
 	private void startClock() {
 		final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy kk:mm:ss");
-		
+
 		Timer taskTimer = new Timer();
 		taskTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -128,84 +127,8 @@ public class ApexTimeTrackerv2 {
 		}, 0, 1000);
 	}
 
-	private void emailTimesheet() throws URISyntaxException, IOException {
-		Properties props = new Properties();
-		File file = new File(Strings.propertiesFilePath);
-
-		if (!file.exists()) {
-			JOptionPane.showMessageDialog(window, "You need to set your email under File > Email Settings");
-			return;
-		} else {
-			try {
-				props.load(new FileReader(file));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		ArrayList<Timecard> temp = sqlite.getTimecards();
-		String[] temp2 = new String[7];
-		String week = null;
-		int increment = 0;
-		
-		for (Timecard timecard : temp) {
-			if (timecard.getWeek().equalsIgnoreCase(getWeek())) {
-				week = timecard.getWeek();
-				DecimalFormat df = new DecimalFormat();
-				df.setMaximumFractionDigits(2);
-				temp2[increment] = timecard.getDay() + ": " + df.format(timecard.getHoursWorked()) + " hour(s) worked";
-				increment++;
-			}
-		}
-		
-		String[] time = new String[7];
-		for (int i = 0;i<temp2.length;i++) {
-			if (temp2[i] != null) {
-				System.out.println(temp2[i]);
-				if (temp2[i] != null) {
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Monday")) {
-						time[0] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Tuesday")) {
-						time[1] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Wednesday")) {
-						time[2] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Thursday")) {
-						time[3] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Friday")) {
-						time[4] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Saturday")) {
-						time[5] = temp2[i];
-					}
-					if (temp2[i].split(":")[0].equalsIgnoreCase("Sunday")) {
-						time[6] = temp2[i];
-					}
-				}
-			}
-		}
-		
-		Desktop desktop;
-		if (Desktop.isDesktopSupported() && (desktop = Desktop.getDesktop()).isSupported(Desktop.Action.MAIL)) {
-			String email = props.getProperty("email");
-			String subject = "Apex Time Track v2 - " + Strings.username + " - " + week;
-			StringBuilder temp_body = new StringBuilder();
-			for (int i = 0;i<7;i++) {
-				if (time[i] != null) {
-					temp_body.append(time[i] + "%0D%0A");
-				}
-			}
-			String body = temp_body.toString();
-			URI mailto = new URI("mailto:"+email+"?subject="+subject.replaceAll(" ", "%20")+"&body="+body.replaceAll(" ", "%20"));
-			desktop.mail(mailto);
-		} else {
-			throw new RuntimeException("mailto not supported on this system");
-		}
+	private void emailTimesheet() {
+		new EmailTimesheet(window, this, sqlite);
 	}
 
 	private void editMode(final boolean enabled) {
@@ -228,7 +151,7 @@ public class ApexTimeTrackerv2 {
 
 						@Override
 						public void windowClosing(WindowEvent e) {
-							
+
 						}
 
 						@Override
@@ -306,28 +229,6 @@ public class ApexTimeTrackerv2 {
 		return days[0] + "-" + days[6];
 	}
 
-	private String getWeek(Date date) {
-		Calendar now = Calendar.getInstance();
-		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-
-		now.setTime(date);
-
-		String[] days = new String[7];
-		int delta = -now.get(GregorianCalendar.DAY_OF_WEEK) + 1;
-		now.add(Calendar.DAY_OF_MONTH, delta);
-		for (int i = 0; i < 7; i++)
-		{
-			days[i] = format.format(now.getTime());
-			now.add(Calendar.DAY_OF_MONTH, 1);
-		}
-
-		return days[0] + "-" + days[6];
-	}
-
-	private void removeTime(int id) {
-		sqlite.removeTimecard(id);
-	}
-
 	public int getNumberOfWeeks() {
 		ArrayList<String> weeks = new ArrayList<String>();
 
@@ -347,10 +248,10 @@ public class ApexTimeTrackerv2 {
 	public ArrayList<Timecard> getTimecards() {
 		return timecards;
 	}
-	
+
 	public void loadTimecard(int id) {
 		Timecard timeCard = sqlite.getTimecard(id);
-		
+
 		clockInField.setText("");
 		clockOutField.setText("");
 		toLunchField.setText("");
@@ -360,7 +261,7 @@ public class ApexTimeTrackerv2 {
 		toLunch.setEnabled(false);
 		returnLunch.setEnabled(false);
 		loadedID = timeCard.getID();
-		
+
 		clockInField.setText(timeCard.getClockInDate() + " " + timeCard.getClockInTime());
 		clockIn.setEnabled(false);
 		toLunch.setEnabled(true);
@@ -388,6 +289,14 @@ public class ApexTimeTrackerv2 {
 			sqlite.addTimecard(loadedID, timecard.getWeek());
 			sqlite.setClockIn(loadedID, getDate(), getTime());
 		} else {
+			for (int i = 0;i<sqlite.getTimecards().size();i++) {
+				Timecard time = sqlite.getTimecards().get(i);
+				if (time.getClockInDate().equalsIgnoreCase(getDate())) {
+					JOptionPane.showMessageDialog(window, "You cannot clock in because there is already a timecard with the same clock in date! If you are trying to add time for a previous day please use the File > Manually Add Time");
+					return;
+				}
+			}
+			
 			int id = sqlite.generateID();
 			Timecard timecard = new Timecard(id, getWeek(), getDate(), getTime());
 			loadedID = id;
@@ -528,7 +437,6 @@ public class ApexTimeTrackerv2 {
 			while (rs.next()) {
 				i++;
 				int id = rs.getInt("id");
-				String week = rs.getString("week");
 				String clockindate = rs.getString("clockindate");
 				String clockintime = rs.getString("clockintime");
 				String tolunchdate = rs.getString("tolunchdate");
@@ -539,7 +447,6 @@ public class ApexTimeTrackerv2 {
 				String clockouttime = rs.getString("clockouttime");
 
 				System.out.println("id = " + id);
-				System.out.println("week = " + week);
 				System.out.println("clockindate = " + clockindate);
 				System.out.println("clockintime = " + clockintime);
 				System.out.println("tolunchdate = " + tolunchdate);
@@ -563,8 +470,14 @@ public class ApexTimeTrackerv2 {
 	private void loadUI() {
 		window = new JFrame(Strings.applicationName + " - " + Strings.username);
 		panel = new JPanel();
-		
+
 		timerWindow = new TimerWindow(window);
+
+		Font f = new Font("Arial", Font.BOLD, 18);
+		timerButton = new JLabel(Character.toString((char) 9650));
+		timerButton.setName("disabled");
+		timerButton.setFont(f);
+		timerButton.setHorizontalAlignment(SwingConstants.CENTER);
 
 		clockInField = new JTextField();
 		clockInField.setName("clockin");
@@ -606,19 +519,18 @@ public class ApexTimeTrackerv2 {
 		about = new JMenuItem("About");
 		exit = new JMenuItem("Exit");
 		editTime = new JCheckBoxMenuItem("Edit Time");
-		emailSettings = new JMenuItem("Email Settings");
+		appSettings = new JMenuItem("Settings");
 		viewTimesheet = new JMenuItem(Strings.viewTimesheetButton);
 		deleteTime = new JMenuItem(Strings.deleteTimesheetButton);
 		deleteTimesheet = new JMenuItem(Strings.deleteAllTimeButton);
 		emailTimesheet = new JMenuItem(Strings.emailTimesheetButton);
 		createNewTimecard = new JMenuItem("Create New Timecard");
 		loadTimecard = new JMenuItem("Load Timecard");
-		todo = new JMenuItem("TODO");
+		manuallyEnterTime = new JMenuItem("Manually Add Time");
 
 		help.add(about);
-//		help.add(update);
-		help.add(todo);
 		file.add(createNewTimecard);
+		file.add(manuallyEnterTime);
 		file.add(loadTimecard);
 		file.add(new JSeparator());
 		file.add(viewTimesheet);
@@ -626,7 +538,7 @@ public class ApexTimeTrackerv2 {
 		file.add(deleteTime);
 		file.add(deleteTimesheet);
 		file.add(new JSeparator());
-		file.add(emailSettings);
+		file.add(appSettings);
 		file.add(editTime);
 		file.add(new JSeparator());
 		file.add(exit);
@@ -644,52 +556,45 @@ public class ApexTimeTrackerv2 {
 		clockOutField.addMouseListener(new EditTimeMouseListener(window, this, bg, editTime, clockOutField));
 		toLunchField.addMouseListener(new EditTimeMouseListener(window, this, bg, editTime, toLunchField));
 		returnLunchField.addMouseListener(new EditTimeMouseListener(window, this, bg, editTime, returnLunchField));
-		
-		loadTimecard.addActionListener(new ActionListener() {
+
+		manuallyEnterTime.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				window.setEnabled(false);
-				new LoadTimecardWindow(window, main, sqlite);
+			public void actionPerformed(ActionEvent e) {
+				new ManuallyAddTimeWindow(window, main);
 			}
 		});
 		
-		todo.addActionListener(new ActionListener() {
+		loadTimecard.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String[] todoList = {
-						"                  [*] Add an update button so the program can be updated without downloading a new copy [*]                   ",
-						"                                                                                                                              ",
-						"                         If you have any features you would like to request/fix please email me at                            ",
-						"                                                jordan.s.wiggins@boeing.com                                                   "
-				};
-				
-				JOptionPane.showMessageDialog(window, todoList);
+			public void actionPerformed(ActionEvent e) {
+				window.setEnabled(false);
+				new LoadTimecardWindow(window, main, sqlite);
 			}
 		});
 
 		emailTimesheet.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					emailTimesheet();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			public void actionPerformed(ActionEvent e) {
+				emailTimesheet();
 			}
 		});
-		
+
 		viewTimesheet.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				new TimesheetWindow(window, main, sqlite);
 			}
 		});
 
 		deleteTime.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
+				if (sqlite.getTimecards().size() == 0) {
+					JOptionPane.showMessageDialog(window, "You have no times stored!", "The cake is a lie!", JOptionPane.ERROR_MESSAGE);
+					window.setEnabled(true);
+					return;
+				}
+				
 				int res = JOptionPane.showConfirmDialog(window, "Are you sure you want to delete this time?", "Delete Time", JOptionPane.YES_NO_OPTION);
 
 				if (res == JOptionPane.OK_OPTION) {
@@ -766,6 +671,12 @@ public class ApexTimeTrackerv2 {
 		deleteTimesheet.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (sqlite.getTimecards().size() == 0) {
+					JOptionPane.showMessageDialog(window, "You have no times stored!", "The cake is a lie!", JOptionPane.ERROR_MESSAGE);
+					window.setEnabled(true);
+					return;
+				}
+				
 				int res = JOptionPane.showConfirmDialog(window, Strings.deleteTimesheetMessage, "Are you sure you want to do that?", JOptionPane.YES_NO_OPTION);
 				if (res == JOptionPane.YES_OPTION) {
 					JOptionPane.showMessageDialog(window, "The timesheet has been deleted!", "Poof! It's gone!", JOptionPane.WARNING_MESSAGE);
@@ -778,11 +689,16 @@ public class ApexTimeTrackerv2 {
 		editTime.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (sqlite.getTimecards().size() == 0) {
+					JOptionPane.showMessageDialog(window, "You have no times stored!", "The cake is a lie!", JOptionPane.ERROR_MESSAGE);
+					window.setEnabled(true);
+					editTime.setSelected(false);
+					return;
+				}
+				
 				if (!editTime.isSelected()) {
-					window.setTitle(Strings.applicationName + " - " + Strings.username);
 					editMode(false);
 				} else {
-					window.setTitle(Strings.applicationName + " - " + "EDIT MODE");
 					editMode(true);
 				}
 			}
@@ -814,6 +730,13 @@ public class ApexTimeTrackerv2 {
 					return;
 				}
 				toLunch();
+
+				int ans = JOptionPane.showConfirmDialog(window, "Do you want to start a lunch timer?", "Timer", JOptionPane.YES_NO_OPTION);
+
+				if (ans == JOptionPane.YES_OPTION) {
+					timerWindow.setVisible(true, timerButton);
+					timerWindow.startTimer(60);
+				}
 			}
 		});
 
@@ -835,15 +758,31 @@ public class ApexTimeTrackerv2 {
 					JOptionPane.showMessageDialog(window, "You are in edit mode and cannot use the time stamp feature right now", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				
+
 				clockOut();
-				
+
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(new Date());
-				boolean friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
-				
-				if (friday) {
-					JOptionPane.showMessageDialog(window, "It's Friday! Time to put that time in! I have composed an email so you can send your hours to your email just incase, as well as I have opened a browser and navigated to the contractor login page for Apex Systems Inc!");
+				boolean ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
+
+				if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("MONDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("TUESDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("WEDNESDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("THURSDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("FRIDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("SATURDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
+				} else if (Settings.lastDayOfWorkWeek.equalsIgnoreCase("SUNDAY")) {
+					ldoww = cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+				}
+
+				if (ldoww) {
+					JOptionPane.showMessageDialog(window, "It's the last day of the work week! Time to put that time in! I have composed an email so you can send your hours to your email just incase, as well as I have opened a browser and navigated to the contractor login page for Apex Systems Inc!");
 					try {
 						emailTimesheet();
 						Desktop.getDesktop().browse(new URI("https://myapex.apexsystemsinc.com/psp/MYAPEX/CONTRACTOR/HRMS/c/APEX.AX_HOME_PAGE.GBL?FolderPath=PORTAL_ROOT_OBJECT.AX_HOME_PAGE&IsFolder=false&IgnoreParamTempl=FolderPath%2cIsFolder"));
@@ -863,10 +802,10 @@ public class ApexTimeTrackerv2 {
 			}
 		});
 
-		emailSettings.addActionListener(new ActionListener() {
+		appSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new EmailSettingsWindow(window);
+				new SettingsWindow(window);
 			}
 		});
 
@@ -906,15 +845,15 @@ public class ApexTimeTrackerv2 {
 		panel.setPreferredSize(dim);
 		panel.setMaximumSize(dim);
 		panel.setMinimumSize(dim);
-		
+
 		Component[] components = new Component[] {
 				clockIn,clockInField,toLunch,toLunchField,returnLunch,returnLunchField, clockOut, clockOutField
 		};
-		
+
 		String[] locations = new String[] {
 				"0,0","1,0","0,1","1,1","0,2","1,2","0,3","1,3"
 		};
-		
+
 		for (int i = 0;i<components.length;i++) {
 			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -924,31 +863,27 @@ public class ApexTimeTrackerv2 {
 			gbc.insets = new Insets(0,0,15,5);
 			panel.add(components[i], gbc);
 		}
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 2;
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		
+
 		clock = new JLabel();
 		Font f = new Font("Arial", Font.BOLD, 18);
 		clock.setFont(f);
 		clock.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(clock, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 2;
 		gbc.gridx = 0;
 		gbc.gridy = 6;
-		
-		timerButton = new JLabel(Character.toString((char) 9650));
-		timerButton.setName("disabled");
-		timerButton.setFont(f);
-		timerButton.setHorizontalAlignment(SwingConstants.CENTER);
+
 		panel.add(timerButton, gbc);
-		
+
 		timerButton.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -997,7 +932,7 @@ public class ApexTimeTrackerv2 {
 		window.setFocusable(true);
 		window.setAlwaysOnTop(true);
 		window.setVisible(true);
-		
+
 		window.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent ev) {
@@ -1012,4 +947,3 @@ public class ApexTimeTrackerv2 {
 	}
 
 }
-
