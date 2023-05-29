@@ -11,3 +11,6 @@ The goal of the Apex Time Tracker is to provide employees an easier way to track
 
 # Wiki
 Have some questions on how to do an action inside of the application? Head on over to the wiki! https://github.com/SouthernSeth/ApexTimeTrackerv2/wiki
+
+# Retired!
+This software is no longer developed/supported.
